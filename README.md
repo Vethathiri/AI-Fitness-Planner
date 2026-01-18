@@ -47,8 +47,6 @@ The app supports **weekly plan evolution**, **progress tracking**, **PDF export*
 | OCR (optional) | pytesseract |
 | Deployment | Streamlit Cloud |
 
----
-
 ## 📂 Project Structure
 ai-fitness-planner/
 │
@@ -145,3 +143,4 @@ India 🇮🇳
 
 ⭐ If you like this project
 Give it a ⭐ on GitHub and feel free to fork!
+
