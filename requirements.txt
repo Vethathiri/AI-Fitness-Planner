@@ -1,0 +1,6 @@
+streamlit
+fpdf2
+python-dotenv
+google-genai
+pandas
+psycopg2-binary
