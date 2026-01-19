@@ -1,14 +1,13 @@
 import streamlit as st
-import os
-from database import get_cursor, delete_user
+from database import get_connection, delete_user
 from database import get_user_profile
 from database import get_all_users, get_plan_history
 from datetime import datetime, timedelta
 from database import get_user_progress,delete_plan
 import pandas as pd
 
-ADMIN_USER = os.getenv("ADMIN_USER")
-ADMIN_PASS = os.getenv("ADMIN_PASS")
+ADMIN_USER = st.secrets["ADMIN_USER"]
+ADMIN_PASS = st.secrets["ADMIN_PASS"]
 
 st.set_page_config("Admin", "📊")
 
@@ -39,10 +38,12 @@ if st.sidebar.button("Logout"):
     st.rerun()
 
 st.title("Admin Dashboard")
-cursor = get_cursor()
+conn = get_connection()
+cursor = conn.cursor()
 cursor.execute("SELECT id, username FROM users")
 users = cursor.fetchall()
 cursor.close()
+conn.close()
 for uid, u in users:
     c1, c2, c3 = st.columns([4,2,2])
     c1.write(u)
@@ -147,4 +148,5 @@ else:
                     if st.button("🗑️ Delete Plan", key=f"delete_{plan_id}"):
                         delete_plan(plan_id)
                         st.success(f"✅ Week {week} plan deleted")
+
                         st.rerun()
