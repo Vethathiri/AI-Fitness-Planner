@@ -391,6 +391,7 @@ if st.session_state.page == "week2":
             "INSERT INTO progress(user_id, week, weight, difficulty) VALUES (%s,%s,%s,%s)",
             (st.session_state.user_id, current_week, new_weight, difficulty)
         )
+        conn.commit()
         cursor.close()
         conn.close()
         conn = get_connection()
@@ -400,6 +401,7 @@ if st.session_state.page == "week2":
     SET weight = %s
     WHERE user_id = %s
 """, (new_weight, st.session_state.user_id))
+        conn.commit()
         cursor.close()
         conn.close()
 
@@ -650,6 +652,7 @@ Day 7:
     current_week,
     adapted
 ))
+        conn.commit()
         cursor.close()
         conn.close()
 
@@ -798,6 +801,7 @@ ON CONFLICT (user_id, key)
 DO UPDATE SET
     value = EXCLUDED.value
 """, (st.session_state.user_id, preferences))
+    conn.commit()
     cursor.close()
     conn.close()
 
@@ -964,6 +968,7 @@ PLAN TO FIX:
         timestamp = CURRENT_TIMESTAMP""" ,
     (st.session_state.user_id, 1, validated)
 )
+            conn.commit()
             cursor.close()
             conn.close()
 
@@ -1068,6 +1073,7 @@ CURRENT PLAN:
     st.session_state.user_id,
     st.session_state.current_week
 ))
+        conn.commit()
         cursor.close()
         conn.close()
         st.session_state.plan=updated
@@ -1079,4 +1085,5 @@ if "plan" in st.session_state:
     file=create_pdf(st.session_state.plan)
     with open(file,"rb") as f:
         st.download_button("Download PDF", f, "FitnessPlan.pdf")
+
 
