@@ -48,21 +48,23 @@ The app supports **weekly plan evolution**, **progress tracking**, **PDF export*
 | Deployment | Streamlit Cloud |
 
 ## 📂 Project Structure
+
 ai-fitness-planner/
 │
-├── app.py # Main Streamlit app
-├── auth.py # Login / Signup logic
-├── database.py # Database connection & queries
-├── ai_api.py # AI prompt handling
-├── pdf_utils.py # PDF generation
-├── DejaVuSans.ttf # Unicode font for PDF (₹, Indian text)
+├── app.py              # Main Streamlit app
+├── auth.py             # Login / Signup logic
+├── database.py         # Database connection & queries
+├── ai_api.py           # AI prompt handling
+├── pdf_utils.py        # PDF generation
+├── DejaVuSans.ttf      # Unicode font for PDF (₹, Indian text)
 ├── requirements.txt
-├── .env # Local secrets (NOT pushed)
+├── .env                # Local secrets (NOT pushed)
 │
 ├── pages/
-│ └── admin.py # Admin dashboard
+│   └── admin.py        # Admin dashboard
 │
 └── README.md
+
 
 ## ⚙️ Environment Variables
 
@@ -80,67 +82,129 @@ GOOGLE_API_KEY=your_google_genai_key
 ADMIN_USER=admin
 ADMIN_PASS=admin_password
 
-🗄️ Database Tables (Core)
--users
--user_profile
--plans
--progress
--preferences
+## 🗄️ Database Tables (Core)
 
-The app automatically keeps profile weight updated from weekly progress.
+users
+- Stores registered users (username + password hash)
 
-▶️ Run Locally
-1️⃣ Clone the repo
+user_profile
+- age
+- height
+- weight
+- state
+- city
+- goal
+- diet
+- workout_place
+- budget
+
+plans
+- user_id
+- week
+- plan (AI generated text)
+- timestamp
+
+progress
+- user_id
+- week
+- weight
+- difficulty
+- timestamp
+
+preferences
+- user_id
+- key
+- value
+
+Note:
+The app automatically updates the user_profile.weight
+based on weekly progress submissions.
+
+
+## ▶️ Run Locally
+
+1. Clone the repository
 git clone https://github.com/your-username/ai-fitness-planner.git
 cd ai-fitness-planner
-2️⃣ Create virtual environment
+
+2. Create virtual environment
 python -m venv venv
-venv\Scripts\activate   # Windows
-3️⃣ Install dependencies
+
+Windows:
+venv\Scripts\activate
+
+Linux / Mac:
+source venv/bin/activate
+
+3. Install dependencies
 pip install -r requirements.txt
-4️⃣ Run the app
+
+4. Run the app
 streamlit run app.py
 
-☁️ Deploy on Streamlit Cloud
-1.Push project to GitHub
-2.Go to https://share.streamlit.io
-3.Select repository & app.py
-4.Add secrets in Settings → Secrets
-5.Deploy 🚀
 
-📱 Mobile Support
+## ☁️ Deploy on Streamlit Cloud
 
-✅ Fully responsive
-✅ Can login from phone
-✅ Continue Week 2, Week 3 plans seamlessly
+1. Push the project to GitHub
+2. Go to https://share.streamlit.io
+3. Click "New app"
+4. Select:
+   - Repository
+   - Branch: main
+   - File: app.py
+5. Open Settings → Secrets
+6. Add all environment variables
+7. Click Deploy 🚀
 
-🧠 AI Safety & Validation
+Your app URL will be generated automatically:
+https://your-app-name.streamlit.app
 
-❌ Prevents saving AI error responses
-✅ Saves only complete 7-day plans
-🔁 Auto-regenerates incomplete plans
-🛑 Protects existing plans from partial overwrite
 
-🚀 Future Improvements
+## 📱 Mobile Support
 
-1.Wearable integration
-2.Calorie breakdown
-3.Multi-language support
-4.Push notifications
-5.Exercise demo videos
+- Fully responsive UI
+- Login works on mobile
+- Weekly plans (Week 2, Week 3, etc.) continue seamlessly
+- PDF download works on mobile browsers
 
-👨‍🎓 Ideal For
-1.College mini / major projects
-2.AI + Full Stack portfolios
-3.Resume projects
-4.Startup MVPs
 
-🧑‍💻 Author
+## 🧠 AI Safety & Validation
 
-Vethathiri Kumarasamy
-AI Fitness Planner Project
+- Prevents saving AI error responses
+- Saves ONLY complete 7-day plans
+- Automatically regenerates incomplete plans
+- Protects existing plans from partial overwrite
+- Never crashes UI due to AI failures
+
+
+## 🚀 Future Improvements
+
+1. Wearable device integration
+2. Calorie & macro breakdown
+3. Multi-language support
+4. Push notifications
+5. Exercise demo videos
+
+
+## 👨‍🎓 Ideal For
+
+- College mini / major projects
+- AI + Full Stack portfolios
+- Resume projects
+- Startup MVPs
+
+
+## 🧑‍💻 Author
+
+Vethathiri Kumarasamy  
+AI Fitness Planner Project  
 India 🇮🇳
 
-⭐ If you like this project
-Give it a ⭐ on GitHub and feel free to fork!
+
+## ⭐ Support
+
+If you like this project:
+- Give it a ⭐ on GitHub
+- Fork it
+- Use it for learning & portfolios
 
