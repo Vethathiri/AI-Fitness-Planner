@@ -1,7 +1,7 @@
 import streamlit as st, random
 from auth import signup, login
 from auth import user_exists
-from database import get_cursor
+from database import get_connection
 from ai_api import query_ai
 from pdf_utils import create_pdf
 from database import get_plan_history
@@ -158,13 +158,16 @@ if st.session_state.page == "auth" and not st.session_state.user_id:
                     st.session_state.username = u
 
                     # detect last completed week
-                    cursor = get_cursor()
+                    conn = get_connection()
+                    cursor = conn.cursor()
                     cursor.execute(
                         "SELECT COALESCE(MAX(week), 0) FROM plans WHERE user_id=%s",
                         (st.session_state.user_id,)
                     )
                     st.session_state.current_week = cursor.fetchone()[0]
-
+                    cursor.close()
+                    conn.close()
+                    
                     st.session_state.page = (
                         "week2" if st.session_state.current_week >= 1 else "dashboard"
                     )
@@ -239,10 +242,12 @@ else:
     state_db = city_db = goal_db = diet_db = workout_place_db = None
     budget_db = None
 
-cursor = get_cursor()
+conn = get_connection()
+cursor = conn.cursor()
 cursor.execute("SELECT COUNT(*) FROM plans WHERE user_id=%s",(st.session_state.user_id,))
 plan_count=cursor.fetchone()[0]
 cursor.close()
+conn.close()
 
 # -------- SIDEBAR --------
 st.sidebar.title("Profile")
@@ -348,13 +353,15 @@ if st.session_state.page == "week2":
 # -------- WEEK 2 / NEXT PLAN PAGE --------
 if st.session_state.page == "week2":
     # ---- Detect current week number ----
-    cursor = get_cursor()
+    conn = get_connection()
+    cursor = conn.cursor()
     cursor.execute(
     "SELECT COALESCE(MAX(week), 0) FROM plans WHERE user_id=%s",
     (st.session_state.user_id,)
 )
     current_week = cursor.fetchone()[0] + 1
     cursor.close()
+    conn.close()
 
     logo()
     st.subheader(f"🔄 Week {current_week} – Update Your Progress")
@@ -378,19 +385,23 @@ if st.session_state.page == "week2":
 
     if st.button(f"Generate Week {current_week} Plan"):
         # Save progress
-        cursor = get_cursor()
+        conn = get_connection()
+        cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO progress(user_id, week, weight, difficulty) VALUES (%s,%s,%s,%s)",
             (st.session_state.user_id, current_week, new_weight, difficulty)
         )
         cursor.close()
-        cursor = get_cursor()
+        conn.close()
+        conn = get_connection()
+        cursor = conn.cursor()
         cursor.execute("""
     UPDATE user_profile
     SET weight = %s
     WHERE user_id = %s
 """, (new_weight, st.session_state.user_id))
         cursor.close()
+        conn.close()
 
         profile = get_user_profile(st.session_state.user_id)
         if profile:
@@ -399,7 +410,8 @@ if st.session_state.page == "week2":
             state_db, city_db, goal_db,
             diet_db, workout_place_db, budget_db
         ) = profile
-        cursor = get_cursor()
+        conn = get_connection()
+        cursor = conn.cursor()
         # Fetch previous plan
         cursor.execute(
             "SELECT plan FROM plans WHERE user_id=%s ORDER BY timestamp DESC LIMIT 1",
@@ -407,7 +419,9 @@ if st.session_state.page == "week2":
         )
         prev_plan = cursor.fetchone()[0]
         cursor.close()
-        cursor = get_cursor()
+        conn.close()
+        conn = get_connection()
+        cursor = conn.cursor()
         cursor.execute("""
 SELECT value FROM preferences
 WHERE user_id=%s AND key='user_preferences'
@@ -416,6 +430,7 @@ WHERE user_id=%s AND key='user_preferences'
         row = cursor.fetchone()
         preferences = row[0] if row else ""
         cursor.close()
+        conn.close()
 
         if not city or not state:
             st.error("Please select your state and city.")
@@ -621,7 +636,8 @@ Day 7:
             diet_db, workout_place_db, budget_db
             ) = profile
         # ✅ ISSUE 5 — insert or replace SAME week
-        cursor = get_cursor()
+        conn = get_connection()
+        cursor = conn.cursor()
         cursor.execute("""
     INSERT INTO plans (user_id, week, plan)
     VALUES (%s, %s, %s)
@@ -635,6 +651,7 @@ Day 7:
     adapted
 ))
         cursor.close()
+        conn.close()
 
         st.session_state.plan = adapted
         st.session_state.current_week = current_week
@@ -772,7 +789,8 @@ Examples:
     if preferences and len(preferences) > 300:
         st.warning("Please keep preferences short and clear (1–3 lines).")
         st.stop()
-    cursor = get_cursor()
+    conn = get_connection()
+    cursor = conn.cursor()
     cursor.execute("""
 INSERT INTO preferences (user_id, key, value)
 VALUES (%s, 'user_preferences', %s)
@@ -781,6 +799,7 @@ DO UPDATE SET
     value = EXCLUDED.value
 """, (st.session_state.user_id, preferences))
     cursor.close()
+    conn.close()
 
     if st.button("Generate 7-Day Plan"):
         with st.spinner("🤖 Generating plan..."):
@@ -936,7 +955,8 @@ PLAN TO FIX:
                 ) = profile
 
             st.session_state.plan=validated
-            cursor = get_cursor()
+            conn = get_connection()
+            cursor = conn.cursor()
             cursor.execute(
     """INSERT INTO plans(user_id, week, plan) VALUES (%s, %s, %s)  ON CONFLICT(user_id, week)
     DO UPDATE SET
@@ -945,6 +965,7 @@ PLAN TO FIX:
     (st.session_state.user_id, 1, validated)
 )
             cursor.close()
+            conn.close()
 
             st.session_state.current_week = 1
 
@@ -1036,7 +1057,8 @@ CURRENT PLAN:
         if len(updated) < len(st.session_state.plan) * 0.7:
             st.error("⚠️ Response looks incomplete. Existing plan kept safe.")
             st.stop()
-        cursor = get_cursor()
+        conn = get_connection()
+        cursor = conn.cursor()
         cursor.execute("""
     UPDATE plans
     SET plan = %s, timestamp = CURRENT_TIMESTAMP
@@ -1047,6 +1069,7 @@ CURRENT PLAN:
     st.session_state.current_week
 ))
         cursor.close()
+        conn.close()
         st.session_state.plan=updated
         st.success("✅ Plan updated successfully")
         st.rerun()
@@ -1056,3 +1079,4 @@ if "plan" in st.session_state:
     file=create_pdf(st.session_state.plan)
     with open(file,"rb") as f:
         st.download_button("Download PDF", f, "FitnessPlan.pdf")
+
