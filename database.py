@@ -1,6 +1,10 @@
 import psycopg2
 import streamlit as st
 
+st.write("DB_HOST:", st.secrets.get("DB_HOST"))
+st.write("DB_NAME:", st.secrets.get("DB_NAME"))
+st.write("DB_USER:", st.secrets.get("DB_USER"))
+st.write("DB_PORT:", st.secrets.get("DB_PORT"))
 # ---------------- CONNECTION ----------------
 
 def get_connection():
@@ -150,3 +154,4 @@ def get_user_progress(user_id):
     cur.close()
     conn.close()
     return rows
+
