@@ -5,7 +5,7 @@ from google.genai.errors import ClientError, ServerError, APIError
 # ---------------- API KEY ----------------
 
 try:
-    API_KEY = st.secrets["GEMINI_API_KEY"]
+    API_KEY = st.secrets["GOOGLE_API_KEY"]
 except KeyError:
     st.error("❌ AI configuration missing. Please contact administrator.")
     st.stop()
@@ -55,3 +55,4 @@ def query_ai(prompt: str) -> str:
 
     except Exception:
         return "⚠️ Something went wrong. Please refresh the page and try again."
+
